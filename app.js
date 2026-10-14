@@ -1,7 +1,6 @@
 (() => {
-  // ── عدّل السطر ده بس ─────────────────────────────
-  const RELAY_SECURE const RELAY_HOST = 'stream-test.pxxlspace.cv';
-  // ─────────────────────────────────────────────────
+  const RELAY_HOST = 'stream-test.pxxlspace.cv';
+  const RELAY_SECURE = true;
 
   const wsProto = RELAY_SECURE ? 'wss' : 'ws';
   const ws = new WebSocket(`${wsProto}://${RELAY_HOST}`);
