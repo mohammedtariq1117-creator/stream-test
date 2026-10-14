@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Panel</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d1117; color:#c9d1d9; font-family:ui-monospace,Menlo,monospace; padding:20px; }
+  h1 { font-size:14px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#58a6ff; margin-bottom:16px; }
+  #status { font-size:12px; color:#8b949e; margin-bottom:20px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+  .card { background:#161b22; border:1px solid #30363d; border-radius:8px; overflow:hidden; }
+  .card .h { padding:8px 12px; background:#0d1117; border-bottom:1px solid #30363d; font-size:11px; display:flex; justify-content:space-between; }
+  .card .h .ip { color:#7ee787; }
+  .card .h .ts { color:#8b949e; }
+  .card img { width:100%; display:block; background:#000; min-height:180px; object-fit:cover; }
+  .empty { color:#484f58; font-size:13px; padding:40px 0; text-align:center; grid-column:1/-1; }
+</style>
+</head>
+<body>
+<h1>control panel</h1>
+<div id="status">connecting…</div>
+<div class="grid" id="grid"><div class="empty">no active sources</div></div>
+<script>
+  // ── عدّل السطر ده بس ─────────────────────────────
+  const RELAY_HOST = 'your-relay.onrender.com';
+  const RELAY_SECURE = true;
+  // ─────────────────────────────────────────────────
+
+  const wsProto = RELAY_SECURE ? 'wss' : 'ws';
+  const ws = new WebSocket(`${wsProto}://${RELAY_HOST}`);
+
+  const grid = document.getElementById('grid');
+  const statusEl = document.getElementById('status');
+  const cards = new Map();
+
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'role', role: 'viewer' }));
+    statusEl.textContent = 'connected · waiting for sources';
+  };
+
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+
+    if (msg.type === 'frame') {
+      let card = cards.get(msg.ip);
+      if (!card) {
+        const empty = grid.querySelector('.empty');
+        if (empty) empty.remove();
+
+        card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="h"><span class="ip">${msg.ip}</span><span class="ts">live</span></div>
+          <img alt="">
+        `;
+        grid.appendChild(card);
+        cards.set(msg.ip, card);
+      }
+      const img = card.querySelector('img');
+      img.src = msg.data;
+      card.querySelector('.ts').textContent = new Date(msg.ts).toLocaleTimeString();
+      statusEl.textContent = `connected · ${cards.size} source(s)`;
+    }
+
+    if (msg.type === 'source_new') {
+      statusEl.textContent = `connected · ${cards.size} source(s) · new: ${msg.ip}`;
+    }
+  };
+
+  ws.onclose = () => {
+    statusEl.textContent = 'disconnected — reload to reconnect';
+  };
+</script>
+</body>
+</html>
