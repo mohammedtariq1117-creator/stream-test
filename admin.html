@@ -22,10 +22,8 @@
 <div id="status">connecting…</div>
 <div class="grid" id="grid"><div class="empty">no active sources</div></div>
 <script>
-  // ── عدّل السطر ده بس ─────────────────────────────
-  const RELAY_HOST = 'your-relay.onrender.com';
+  const RELAY_HOST = 'stream-test.pxxlspace.cv';
   const RELAY_SECURE = true;
-  // ─────────────────────────────────────────────────
 
   const wsProto = RELAY_SECURE ? 'wss' : 'ws';
   const ws = new WebSocket(`${wsProto}://${RELAY_HOST}`);
@@ -51,21 +49,18 @@
 
         card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-          <div class="h"><span class="ip">${msg.ip}</span><span class="ts">live</span></div>
-          <img alt="">
-        `;
+        card.innerHTML = '<div class="h"><span class="ip">' + msg.ip + '</span><span class="ts">live</span></div><img alt="">';
         grid.appendChild(card);
         cards.set(msg.ip, card);
       }
       const img = card.querySelector('img');
       img.src = msg.data;
       card.querySelector('.ts').textContent = new Date(msg.ts).toLocaleTimeString();
-      statusEl.textContent = `connected · ${cards.size} source(s)`;
+      statusEl.textContent = 'connected · ' + cards.size + ' source(s)';
     }
 
     if (msg.type === 'source_new') {
-      statusEl.textContent = `connected · ${cards.size} source(s) · new: ${msg.ip}`;
+      statusEl.textContent = 'connected · ' + cards.size + ' source(s) · new: ' + msg.ip;
     }
   };
 
