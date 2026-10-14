@@ -1,7 +1,6 @@
 (() => {
   // ── عدّل السطر ده بس ─────────────────────────────
-  const RELAY_HOST = 'your-relay.onrender.com';
-  const RELAY_SECURE = true;
+  const RELAY_SECURE const RELAY_HOST = 'stream-test.pxxlspace.cv';
   // ─────────────────────────────────────────────────
 
   const wsProto = RELAY_SECURE ? 'wss' : 'ws';
